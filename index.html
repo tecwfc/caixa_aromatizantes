@@ -316,7 +316,7 @@
             top: 0;
             right: 0;
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
             height: 100vh;
             height: 100dvh;
             background: var(--branco);
@@ -491,6 +491,8 @@
             border-top: 1px solid var(--slate-200);
             background: var(--slate-50);
             flex-shrink: 0;
+            max-height: 60vh;
+            overflow-y: auto;
         }
         .cart-total-row {
             display: flex;
@@ -614,6 +616,7 @@
             font-weight: 600;
             font-size: 13px;
             color: var(--slate-600);
+            margin-left: auto;
         }
         .desktop-cart-btn:hover {
             border-color: var(--verde);
@@ -636,6 +639,19 @@
         .desktop-cart-btn .cart-total-display {
             font-size: 12px;
             color: var(--verde-escuro);
+        }
+
+        /* Header com botão do carrinho desktop */
+        .page-header-with-cart {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .page-header-with-cart .page-header {
+            margin-bottom: 0;
         }
 
         /* ===== CATEGORIAS ===== */
@@ -992,6 +1008,15 @@
             border-color: var(--verde);
             background: var(--verde-bg);
         }
+        .product-card.out-of-stock {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .product-card.out-of-stock:hover {
+            transform: none;
+            box-shadow: var(--sombra);
+            border-color: var(--slate-200);
+        }
 
         .product-image {
             width: 100%;
@@ -1028,6 +1053,15 @@
             padding: 2px 8px;
             border-radius: 10px;
             letter-spacing: 0.3px;
+        }
+        .product-stock {
+            font-size: 10px;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+        .product-stock .out-of-stock-text {
+            color: var(--vermelho);
+            font-weight: 700;
         }
 
         /* ===== LISTA DE VENDAS ===== */
@@ -1392,7 +1426,7 @@
             }
 
             .desktop-cart-btn {
-                display: none;
+                display: none !important;
             }
 
             .cards-grid {
@@ -1452,6 +1486,11 @@
 
             .cart-sidebar {
                 max-width: 100%;
+            }
+
+            .page-header-with-cart {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
 
@@ -1593,6 +1632,11 @@
             .cart-item-name {
                 font-size: 12px;
             }
+
+            .cart-footer {
+                padding: 12px 14px;
+                max-height: 50vh;
+            }
         }
 
         @media (max-width: 380px) {
@@ -1636,6 +1680,16 @@
             }
         }
 
+        /* Desktop: mostra o botão do carrinho */
+        @media (min-width: 821px) {
+            .desktop-cart-btn {
+                display: flex !important;
+            }
+            .cart-btn.mobile-cart {
+                display: none !important;
+            }
+        }
+
         ::-webkit-scrollbar {
             width: 3px;
             height: 3px;
@@ -1650,6 +1704,19 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--slate-400);
         }
+
+        /* Ajuste para o header da página de venda */
+        .venda-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .venda-header .page-header {
+            margin-bottom: 0;
+        }
     </style>
 
     <script>
@@ -1659,54 +1726,54 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbxxEjFS4qQQjsAcv_CDPakP44gzUNI69VvxPpZN7BeklBgJ5PCoOKvLY9Bi854E2nv9/exec';
 
         // ============================================================
-        // LISTA DE PRODUTOS PRÉ-DEFINIDA COM CATEGORIAS
+        // LISTA DE PRODUTOS PRÉ-DEFINIDA COM CATEGORIAS E ESTOQUE INICIAL
         // ============================================================
         const PRODUTOS_PREDEFINIDOS = [
-            { nome: 'AMARA 500ML', categoria: '500ml' },
-            { nome: 'BABOO 500ML', categoria: '500ml' },
-            { nome: 'BMW X 500ML', categoria: '500ml' },
-            { nome: 'CAPIM LIMÃO 500ML', categoria: '500ml' },
-            { nome: 'CASCAS E FOLHAS 500ML', categoria: '500ml' },
-            { nome: 'CEREJA COM AVELÃ 500ML', categoria: '500ml' },
-            { nome: 'FLOR DE CAFÉ 500ML', categoria: '500ml' },
-            { nome: 'FLOR DE LOTUS 500ML', categoria: '500ml' },
-            { nome: 'FOLHAS BRASIL 500ML', categoria: '500ml' },
-            { nome: 'JASMIM DO EGITO 500ML', categoria: '500ml' },
-            { nome: 'FLOR DE ZIMBRO 500ML', categoria: '500ml' },
-            { nome: 'LAVANDA 500ML', categoria: '500ml' },
-            { nome: 'LAVANDA PROVENCE 500ML', categoria: '500ml' },
-            { nome: 'MAMÃE BB 500ML', categoria: '500ml' },
-            { nome: 'MOMENTOS 500ML', categoria: '500ml' },
-            { nome: 'TRUSSASI 500ML', categoria: '500ml' },
-            { nome: 'MERCEDES 500ML', categoria: '500ml' },
-            { nome: 'PATCHOULI 500ML', categoria: '500ml' },
-            { nome: 'CHÁ BRANCO 500ML', categoria: '500ml' },
-            { nome: 'KAIAK 500ML', categoria: '500ml' },
-            { nome: 'REFIL ALECRIM 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL BABOO 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL CASCAS E FOLHAS 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL JASMIM DO EGITO 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL KAIAK 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL LAVANDA 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL MAMÃE BB 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL MARRUÁ 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL MOMENTOS 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL FLOR DE CAFÉ 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL FOLHAS DE HIBISCO 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL FOLHAS DE PITANGA 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL AMORA E PITANGA 1 LITRO', categoria: '1 Litro' },
-            { nome: 'REFIL PATCHOULI 1 LITRO', categoria: '1 Litro' },
-            { nome: 'CARRO NOVO 120ML', categoria: '120ml' },
-            { nome: 'CASCAS E FOLHAS 120ML', categoria: '120ml' },
-            { nome: 'FLOR DE CAFÉ 120ML', categoria: '120ml' },
-            { nome: 'AMORA 120ML', categoria: '120ml' },
-            { nome: 'BMW X 120ML', categoria: '120ml' },
-            { nome: 'LAVANDA PROVENCE 120ML', categoria: '120ml' },
-            { nome: 'LAVANDA 120ML', categoria: '120ml' },
-            { nome: 'VANILA GREEN 120ML', categoria: '120ml' },
-            { nome: 'CEDRO ROSA 120ML', categoria: '120ml' },
-            { nome: 'TRASSADI 120ML', categoria: '120ml' },
-            { nome: 'AMORA E PITANGA 120ML', categoria: '120ml' }
+            { nome: 'AMARA 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'BABOO 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'BMW X 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'CAPIM LIMÃO 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'CASCAS E FOLHAS 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'CEREJA COM AVELÃ 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'FLOR DE CAFÉ 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'FLOR DE LOTUS 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'FOLHAS BRASIL 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'JASMIM DO EGITO 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'FLOR DE ZIMBRO 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'LAVANDA 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'LAVANDA PROVENCE 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'MAMÃE BB 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'MOMENTOS 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'TRUSSASI 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'MERCEDES 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'PATCHOULI 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'CHÁ BRANCO 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'KAIAK 500ML', categoria: '500ml', estoque: 10 },
+            { nome: 'REFIL ALECRIM 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL BABOO 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL CASCAS E FOLHAS 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL JASMIM DO EGITO 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL KAIAK 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL LAVANDA 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL MAMÃE BB 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL MARRUÁ 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL MOMENTOS 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL FLOR DE CAFÉ 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL FOLHAS DE HIBISCO 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL FOLHAS DE PITANGA 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL AMORA E PITANGA 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'REFIL PATCHOULI 1 LITRO', categoria: '1 Litro', estoque: 8 },
+            { nome: 'CARRO NOVO 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'CASCAS E FOLHAS 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'FLOR DE CAFÉ 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'AMORA 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'BMW X 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'LAVANDA PROVENCE 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'LAVANDA 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'VANILA GREEN 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'CEDRO ROSA 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'TRASSADI 120ML', categoria: '120ml', estoque: 15 },
+            { nome: 'AMORA E PITANGA 120ML', categoria: '120ml', estoque: 15 }
         ];
 
         // ============================================================
@@ -1795,7 +1862,8 @@
                         nome: p.nome,
                         categoria: p.categoria,
                         preco: 0,
-                        imagem: ''
+                        imagem: '',
+                        estoque: p.estoque || 10
                     }));
                     vendas = [];
                     atualizarTodasTelas();
@@ -1909,6 +1977,8 @@
                 sidebar.classList.add('open');
                 overlay.classList.add('show');
                 document.body.style.overflow = 'hidden';
+                // Atualiza os campos do cliente no carrinho
+                atualizarCamposCarrinho();
             }
         }
 
@@ -1924,6 +1994,13 @@
             toggleCart();
         }
 
+        function atualizarCamposCarrinho() {
+            // Pega os dados atuais do cliente (se houver)
+            const clienteInput = document.getElementById('clienteNomeCarrinho');
+            if (!clienteInput) return;
+            // Não sobrescreve se já tiver algo
+        }
+
         // ============================================================
         // CADASTRAR PRODUTO
         // ============================================================
@@ -1934,6 +2011,8 @@
             const preco = parseFloat(precoInput.value);
             const imagemSelect = document.getElementById('produtoImagemSelect');
             const imagem = imagemSelect.value;
+            const estoqueInput = document.getElementById('produtoEstoqueInput');
+            const estoque = parseInt(estoqueInput.value) || 0;
 
             if (!valor) { alert('Selecione um produto!'); return; }
             if (isNaN(preco) || preco <= 0) { alert('Digite um valor válido!'); precoInput.focus(); return; }
@@ -1950,6 +2029,7 @@
                 categoria: categoria,
                 preco: preco,
                 imagem: imagem || '',
+                estoque: estoque,
                 criadoEm: new Date().toISOString()
             };
 
@@ -1967,6 +2047,7 @@
                     document.getElementById('produtoSelect').value = '';
                     document.getElementById('produtoPrecoInput').value = '';
                     document.getElementById('produtoImagemSelect').value = '';
+                    document.getElementById('produtoEstoqueInput').value = '';
                     mostrarBanner('✅ Produto cadastrado: ' + produto.nome, true);
                     if (navigator.vibrate) navigator.vibrate(10);
                 } else {
@@ -2029,16 +2110,24 @@
                 return;
             }
 
-            grid.innerHTML = produtosFiltrados.map(produto => `
-                    <div class="product-card" onclick="adicionarAoCarrinho('${produto.id}')">
+            grid.innerHTML = produtosFiltrados.map(produto => {
+                const emEstoque = produto.estoque !== undefined ? produto.estoque > 0 : true;
+                const estoqueText = produto.estoque !== undefined ? 
+                    `📦 ${produto.estoque}` : '📦 ∞';
+                
+                return `
+                    <div class="product-card ${!emEstoque ? 'out-of-stock' : ''}" 
+                         onclick="${emEstoque ? `adicionarAoCarrinho('${produto.id}')` : ''}">
                         ${produto.imagem ? 
                             `<img src="${produto.imagem}" alt="${produto.nome}" class="product-image" onerror="this.style.display='none';">` : 
                             `<div class="product-icon">🧴</div>`}
                         <div class="product-name">${produto.nome}</div>
                         <div class="product-price">R$ ${produto.preco.toFixed(2)}</div>
+                        <div class="product-stock">${emEstoque ? estoqueText : '<span class="out-of-stock-text">❌ Indisponível</span>'}</div>
                         ${produto.categoria ? `<div class="product-category-badge">${produto.categoria}</div>` : ''}
                     </div>
-                `).join('');
+                `;
+            }).join('');
         }
 
         function renderizarProdutosCadastrados() {
@@ -2055,6 +2144,7 @@
                             `<div class="product-icon">🧴</div>`}
                         <div class="product-name">${produto.nome}</div>
                         <div class="product-price">R$ ${produto.preco.toFixed(2)}</div>
+                        <div class="product-stock">📦 Estoque: ${produto.estoque !== undefined ? produto.estoque : '∞'}</div>
                         ${produto.categoria ? `<div class="product-category-badge">${produto.categoria}</div>` : ''}
                         <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap;">
                             <button class="btn-warning btn-sm" onclick="editarProduto('${produto.id}')">✏️</button>
@@ -2072,6 +2162,7 @@
             const select = document.getElementById('produtoSelect');
             const precoInput = document.getElementById('produtoPrecoInput');
             const imagemSelect = document.getElementById('produtoImagemSelect');
+            const estoqueInput = document.getElementById('produtoEstoqueInput');
 
             const predefinido = PRODUTOS_PREDEFINIDOS.find(p => p.nome === produto.nome);
             if (predefinido) {
@@ -2086,6 +2177,7 @@
 
             precoInput.value = produto.preco;
             imagemSelect.value = produto.imagem || '';
+            estoqueInput.value = produto.estoque || 0;
 
             const btn = document.querySelector('#tab-produtos .btn-add');
             if (btn) btn.textContent = '💾 Salvar Alteração';
@@ -2100,6 +2192,8 @@
             const preco = parseFloat(precoInput.value);
             const imagemSelect = document.getElementById('produtoImagemSelect');
             const imagem = imagemSelect.value;
+            const estoqueInput = document.getElementById('produtoEstoqueInput');
+            const estoque = parseInt(estoqueInput.value) || 0;
 
             if (!valor) { alert('Selecione um produto!'); return; }
             if (isNaN(preco) || preco <= 0) { alert('Digite um valor válido!'); precoInput.focus(); return; }
@@ -2112,6 +2206,7 @@
             produto.categoria = predefinido ? predefinido.categoria : 'outros';
             produto.preco = preco;
             produto.imagem = imagem;
+            produto.estoque = estoque;
 
             try {
                 const result = await chamarAPI('salvarProduto', { produto: produto });
@@ -2123,6 +2218,7 @@
                     select.value = '';
                     precoInput.value = '';
                     imagemSelect.value = '';
+                    estoqueInput.value = '';
                     const btn = document.querySelector('#tab-produtos .btn-add');
                     if (btn) btn.textContent = '➕ Cadastrar';
                     mostrarBanner('✅ Produto alterado!', true);
@@ -2161,8 +2257,8 @@
 
         function getDescontoAplicado() {
             const total = getTotalCarrinho();
-            const perc = parseFloat(document.getElementById('descontoPercentual').value) || 0;
-            const val = parseFloat(document.getElementById('descontoValor').value) || 0;
+            const perc = parseFloat(document.getElementById('descontoPercentualCarrinho').value) || 0;
+            const val = parseFloat(document.getElementById('descontoValorCarrinho').value) || 0;
             
             if (perc > 0) {
                 return total * (perc / 100);
@@ -2179,8 +2275,8 @@
         }
 
         function aplicarDesconto() {
-            const inputPercentual = document.getElementById('descontoPercentual');
-            const inputValor = document.getElementById('descontoValor');
+            const inputPercentual = document.getElementById('descontoPercentualCarrinho');
+            const inputValor = document.getElementById('descontoValorCarrinho');
             
             // Se um dos campos for preenchido, limpa o outro (exclusividade)
             if (document.activeElement === inputPercentual && inputPercentual.value) {
@@ -2195,9 +2291,9 @@
             const totalComDesconto = total - desconto;
             
             // Atualiza interface
-            document.getElementById('subtotalDisplay').textContent = `R$ ${total.toFixed(2)}`;
-            document.getElementById('descontoDisplay').textContent = `- R$ ${desconto.toFixed(2)}`;
-            document.getElementById('totalComDesconto').textContent = `R$ ${totalComDesconto.toFixed(2)}`;
+            document.getElementById('subtotalDisplayCarrinho').textContent = `R$ ${total.toFixed(2)}`;
+            document.getElementById('descontoDisplayCarrinho').textContent = `- R$ ${desconto.toFixed(2)}`;
+            document.getElementById('totalComDescontoCarrinho').textContent = `R$ ${totalComDesconto.toFixed(2)}`;
             
             // Atualiza hidden e carrinho lateral
             document.getElementById('carrinhoTotalHidden').value = totalComDesconto.toFixed(2);
@@ -2211,13 +2307,13 @@
         }
 
         function limparDescontos() {
-            document.getElementById('descontoPercentual').value = '';
-            document.getElementById('descontoValor').value = '';
+            document.getElementById('descontoPercentualCarrinho').value = '';
+            document.getElementById('descontoValorCarrinho').value = '';
             
             const total = getTotalCarrinho();
-            document.getElementById('subtotalDisplay').textContent = `R$ ${total.toFixed(2)}`;
-            document.getElementById('descontoDisplay').textContent = `R$ 0,00`;
-            document.getElementById('totalComDesconto').textContent = `R$ ${total.toFixed(2)}`;
+            document.getElementById('subtotalDisplayCarrinho').textContent = `R$ ${total.toFixed(2)}`;
+            document.getElementById('descontoDisplayCarrinho').textContent = `R$ 0,00`;
+            document.getElementById('totalComDescontoCarrinho').textContent = `R$ ${total.toFixed(2)}`;
             document.getElementById('carrinhoTotalHidden').value = total.toFixed(2);
             
             const cartFooterTotal = document.getElementById('cartFooterTotal');
@@ -2234,7 +2330,20 @@
             const produto = produtos.find(p => p.id === produtoId);
             if (!produto) return;
 
+            // Verifica estoque
+            if (produto.estoque !== undefined && produto.estoque <= 0) {
+                alert('❌ Produto sem estoque!');
+                return;
+            }
+
             const itemExistente = carrinho.find(item => item.produtoId === produtoId);
+
+            // Verifica se tem estoque suficiente
+            const quantidadeAtual = itemExistente ? itemExistente.quantidade : 0;
+            if (produto.estoque !== undefined && quantidadeAtual >= produto.estoque) {
+                alert('❌ Estoque insuficiente!');
+                return;
+            }
 
             if (itemExistente) {
                 itemExistente.quantidade++;
@@ -2244,17 +2353,33 @@
                     nome: produto.nome,
                     preco: produto.preco || 0,
                     imagem: produto.imagem || '',
-                    quantidade: 1
+                    quantidade: 1,
+                    estoque: produto.estoque
                 });
             }
 
+            // Atualiza o estoque visual
+            if (produto.estoque !== undefined) {
+                produto.estoque--;
+            }
+
+            renderizarProdutos();
             renderizarCarrinho();
             atualizarUI();
             if (navigator.vibrate) navigator.vibrate(10);
         }
 
         function removerDoCarrinho(produtoId) {
+            const item = carrinho.find(i => i.produtoId === produtoId);
+            if (item) {
+                // Devolve o estoque
+                const produto = produtos.find(p => p.id === produtoId);
+                if (produto && produto.estoque !== undefined) {
+                    produto.estoque += item.quantidade;
+                }
+            }
             carrinho = carrinho.filter(item => item.produtoId !== produtoId);
+            renderizarProdutos();
             renderizarCarrinho();
             atualizarUI();
         }
@@ -2263,11 +2388,30 @@
             const item = carrinho.find(i => i.produtoId === produtoId);
             if (!item) return;
 
-            item.quantidade += delta;
-            if (item.quantidade <= 0) {
-                removerDoCarrinho(produtoId);
-                return;
+            const produto = produtos.find(p => p.id === produtoId);
+
+            if (delta > 0) {
+                // Verifica estoque
+                if (produto && produto.estoque !== undefined && produto.estoque <= 0) {
+                    alert('❌ Estoque insuficiente!');
+                    return;
+                }
+                if (produto && produto.estoque !== undefined) {
+                    produto.estoque--;
+                }
+                item.quantidade++;
+            } else {
+                if (produto && produto.estoque !== undefined) {
+                    produto.estoque++;
+                }
+                item.quantidade--;
+                if (item.quantidade <= 0) {
+                    removerDoCarrinho(produtoId);
+                    return;
+                }
             }
+
+            renderizarProdutos();
             renderizarCarrinho();
             atualizarUI();
         }
@@ -2292,6 +2436,12 @@
             document.querySelectorAll('.cart-total-display').forEach(el => {
                 el.textContent = `R$ ${totalValor.toFixed(2)}`;
             });
+
+            // Atualiza o footer do carrinho
+            const footerTotal = document.getElementById('cartFooterTotal');
+            if (footerTotal) {
+                footerTotal.textContent = `R$ ${totalValor.toFixed(2)}`;
+            }
 
             if (carrinho.length === 0) {
                 cartBody.innerHTML = `
@@ -2332,12 +2482,7 @@
                     </div>
                 `).join('');
 
-            const footerTotal = document.getElementById('cartFooterTotal');
-            if (footerTotal) {
-                footerTotal.textContent = `R$ ${totalValor.toFixed(2)}`;
-            }
-
-            document.getElementById('carrinhoTotalHidden').value = totalValor.toFixed(2);
+            // Atualiza os totais com desconto
             aplicarDesconto();
         }
 
@@ -2354,10 +2499,10 @@
         // ============================================================
         function atualizarParcelasPreview() {
             const total = getTotalComDesconto();
-            const parcelas = parseInt(document.getElementById('parcelasQtd')?.value || '1');
-            const entrada = parseFloat(document.getElementById('parcelasEntrada')?.value || '0');
+            const parcelas = parseInt(document.getElementById('parcelasQtdCarrinho')?.value || '1');
+            const entrada = parseFloat(document.getElementById('parcelasEntradaCarrinho')?.value || '0');
 
-            const preview = document.getElementById('parcelasPreview');
+            const preview = document.getElementById('parcelasPreviewCarrinho');
             if (!preview) return;
 
             if (parcelas <= 1 && entrada === 0) {
@@ -2395,10 +2540,105 @@
         }
 
         // ============================================================
+        // GERAR RECIBO PDF
+        // ============================================================
+        function gerarReciboPDF(venda) {
+            if (typeof window.jspdf === 'undefined') {
+                alert('Biblioteca PDF não carregada!');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Cabeçalho
+            doc.setFillColor(39, 174, 96);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('WFC Vendas - Recibo', 105, 10, { align: 'center' });
+            doc.setFontSize(9);
+            doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 105, 18, { align: 'center' });
+
+            // Informações do cliente
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            doc.text(`Cliente: ${venda.clienteNome}`, 14, 35);
+            doc.text(`Status: ${venda.status === 'pago' ? '✅ Pago' : venda.status === 'parcial' ? '⚠️ Parcial' : '⏳ Pendente'}`, 14, 42);
+
+            // Produtos
+            const tableBody = venda.itens.map(item => [
+                item.nome,
+                `${item.quantidade}x`,
+                `R$ ${(item.preco * item.quantidade).toFixed(2)}`
+            ]);
+
+            doc.autoTable({
+                startY: 48,
+                head: [['Produto', 'Qtd', 'Subtotal']],
+                body: tableBody,
+                headStyles: { fillColor: [39, 174, 96] },
+                alternateRowStyles: { fillColor: [240, 240, 240] },
+                styles: { fontSize: 9 }
+            });
+
+            let y = doc.lastAutoTable.finalY + 8;
+
+            // Totais
+            if (venda.desconto && venda.desconto.totalDesconto > 0) {
+                doc.text(`Subtotal: R$ ${venda.totalBruto.toFixed(2)}`, 14, y);
+                doc.text(`Desconto: - R$ ${venda.desconto.totalDesconto.toFixed(2)}`, 14, y + 6);
+                y += 12;
+            }
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.text(`Total: R$ ${venda.total.toFixed(2)}`, 14, y);
+
+            // Pagamentos
+            if (venda.pagamentos && venda.pagamentos.length > 0) {
+                const totalPago = venda.pagamentos.reduce((s, p) => s + p.valor, 0);
+                y += 10;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Total Pago: R$ ${totalPago.toFixed(2)}`, 14, y);
+                
+                if (venda.total > totalPago) {
+                    doc.setTextColor(220, 50, 50);
+                    doc.text(`Saldo Restante: R$ ${(venda.total - totalPago).toFixed(2)}`, 14, y + 6);
+                    doc.setTextColor(0, 0, 0);
+                }
+            }
+
+            // Parcelas
+            if (venda.parcelas && venda.parcelas.quantidade > 1) {
+                y += 14;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Parcelas:', 14, y);
+                doc.setFont('helvetica', 'normal');
+                y += 6;
+
+                const lista = venda.parcelas.lista || [];
+                lista.forEach((p, index) => {
+                    doc.text(`${p.numero}ª: R$ ${p.valor.toFixed(2)} - ${p.pago ? '✅ Paga' : '⏳ Pendente'}`, 14, y + (index * 5));
+                });
+            }
+
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Este recibo é um documento válido para comprovação de pagamento.', 105, 280, { align: 'center' });
+
+            doc.save(`recibo_${venda.clienteNome}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // ============================================================
         // REGISTRAR VENDA
         // ============================================================
         async function registrarVenda() {
-            const clienteNome = document.getElementById('clienteNome').value.trim();
+            const clienteNome = document.getElementById('clienteNomeCarrinho').value.trim();
             if (!clienteNome) { alert('Digite o nome do cliente!'); return; }
             if (carrinho.length === 0) { alert('Adicione produtos!'); return; }
 
@@ -2406,8 +2646,8 @@
             const desconto = getDescontoAplicado();
             const total = totalBruto - desconto;
             
-            const parcelasQtd = parseInt(document.getElementById('parcelasQtd').value) || 1;
-            const entradaValor = parseFloat(document.getElementById('parcelasEntrada').value) || 0;
+            const parcelasQtd = parseInt(document.getElementById('parcelasQtdCarrinho').value) || 1;
+            const entradaValor = parseFloat(document.getElementById('parcelasEntradaCarrinho').value) || 0;
 
             if (entradaValor > total) {
                 alert('O valor da entrada não pode ser maior que o total da venda!');
@@ -2458,8 +2698,8 @@
                 total: total,
                 totalBruto: totalBruto,
                 desconto: {
-                    percentual: parseFloat(document.getElementById('descontoPercentual').value) || 0,
-                    valor: parseFloat(document.getElementById('descontoValor').value) || 0,
+                    percentual: parseFloat(document.getElementById('descontoPercentualCarrinho').value) || 0,
+                    valor: parseFloat(document.getElementById('descontoValorCarrinho').value) || 0,
                     totalDesconto: desconto
                 },
                 pagamentos: pagamentos,
@@ -2477,9 +2717,12 @@
 
                 if (result && result.success) {
                     vendas.push(venda);
-                    document.getElementById('clienteNome').value = '';
-                    document.getElementById('parcelasQtd').value = '1';
-                    document.getElementById('parcelasEntrada').value = '';
+                    
+                    // Limpa campos
+                    document.getElementById('clienteNomeCarrinho').value = '';
+                    document.getElementById('parcelasQtdCarrinho').value = '1';
+                    document.getElementById('parcelasEntradaCarrinho').value = '';
+                    
                     carrinho = [];
                     limparDescontos();
                     renderizarCarrinho();
@@ -2489,6 +2732,11 @@
                     renderizarVendas();
                     renderizarVendidos();
                     renderizarReceber();
+                    renderizarProdutos();
+                    
+                    // Gera recibo PDF
+                    gerarReciboPDF(venda);
+                    
                     mostrarBanner(`✅ Venda: ${clienteNome}!`, true);
                     if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
                 } else {
@@ -2628,6 +2876,7 @@
                             </div>
                             <div class="sale-actions">
                                 ${saldo > 0 ? `<button class="btn-warning btn-sm" onclick="abrirModalPagamento(${venda.id})">💰</button>` : ''}
+                                <button class="btn-pdf btn-sm" onclick="gerarReciboPDF(${JSON.stringify(venda).replace(/"/g, '&quot;')})">📄</button>
                                 <button class="btn-danger btn-sm" onclick="excluirVenda(${venda.id})">🗑️</button>
                             </div>
                         </div>
@@ -2801,6 +3050,10 @@
                     renderizarVendas();
                     renderizarVendidos();
                     renderizarReceber();
+                    
+                    // Gera recibo PDF do pagamento
+                    gerarReciboPDF(venda);
+                    
                     mostrarBanner('✅ Pagamento registrado!', true);
                     if (navigator.vibrate) navigator.vibrate(20);
                 } else {
@@ -2987,15 +3240,20 @@
             const topbar = document.querySelector('.topbar');
             const bottomNav = document.querySelector('.bottom-nav');
 
-            if (window.innerWidth > 820) {
-                if (sidebar) sidebar.style.display = 'flex';
-                if (topbar) topbar.style.display = 'none';
-                if (bottomNav) bottomNav.style.display = 'none';
-            } else {
-                if (sidebar) sidebar.style.display = 'none';
-                if (topbar) topbar.style.display = 'flex';
-                if (bottomNav) bottomNav.style.display = 'flex';
+            function ajustarLayout() {
+                if (window.innerWidth > 820) {
+                    if (sidebar) sidebar.style.display = 'flex';
+                    if (topbar) topbar.style.display = 'none';
+                    if (bottomNav) bottomNav.style.display = 'none';
+                } else {
+                    if (sidebar) sidebar.style.display = 'none';
+                    if (topbar) topbar.style.display = 'flex';
+                    if (bottomNav) bottomNav.style.display = 'flex';
+                }
             }
+
+            ajustarLayout();
+            window.addEventListener('resize', ajustarLayout);
 
             const pagamentoData = document.getElementById('pagamentoData');
             if (pagamentoData) pagamentoData.value = new Date().toISOString().split('T')[0];
@@ -3005,29 +3263,20 @@
                 syncStatus.innerHTML = '<span class="dot offline"></span> Offline';
             }
 
-            document.getElementById('parcelasQtd')?.addEventListener('change', atualizarParcelasPreview);
-            document.getElementById('parcelasEntrada')?.addEventListener('input', atualizarParcelasPreview);
-            document.getElementById('descontoPercentual')?.addEventListener('input', aplicarDesconto);
-            document.getElementById('descontoValor')?.addEventListener('input', aplicarDesconto);
+            document.getElementById('parcelasQtdCarrinho')?.addEventListener('change', atualizarParcelasPreview);
+            document.getElementById('parcelasEntradaCarrinho')?.addEventListener('input', atualizarParcelasPreview);
+            document.getElementById('descontoPercentualCarrinho')?.addEventListener('input', aplicarDesconto);
+            document.getElementById('descontoValorCarrinho')?.addEventListener('input', aplicarDesconto);
+
+            // Event listener para o cliente no carrinho
+            document.getElementById('clienteNomeCarrinho')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('btnFinalizarVenda')?.click();
+                }
+            });
 
             carregarDados();
         }
-
-        window.addEventListener('resize', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const topbar = document.querySelector('.topbar');
-            const bottomNav = document.querySelector('.bottom-nav');
-
-            if (window.innerWidth > 820) {
-                if (sidebar) sidebar.style.display = 'flex';
-                if (topbar) topbar.style.display = 'none';
-                if (bottomNav) bottomNav.style.display = 'none';
-            } else {
-                if (sidebar) sidebar.style.display = 'none';
-                if (topbar) topbar.style.display = 'flex';
-                if (bottomNav) bottomNav.style.display = 'flex';
-            }
-        });
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
@@ -3044,7 +3293,7 @@
                 <div class="unidade-sm">WFC Vendas</div>
             </div>
             <div class="topbar-right">
-                <button class="cart-btn" onclick="toggleCart()">
+                <button class="cart-btn mobile-cart" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
                 </button>
@@ -3132,72 +3381,13 @@
 
             <!-- Nova Venda -->
             <div class="page" id="tab-venda">
-                <div class="page-header"><span class="bar"></span> Nova Venda</div>
-
-                <div class="form-card">
-                    <div class="form-title">📝 Cliente</div>
-                    <div class="field">
-                        <label>Nome do Cliente</label>
-                        <input type="text" id="clienteNome" placeholder="Digite o nome" autocomplete="off" />
-                    </div>
-                </div>
-
-                <!-- PARCELAS -->
-                <div class="form-card">
-                    <div class="form-title">📆 Parcelamento</div>
-                    <div class="row2">
-                        <div class="field">
-                            <label>Número de parcelas</label>
-                            <select id="parcelasQtd">
-                                <option value="1">1x (à vista)</option>
-                                <option value="2">2x</option>
-                                <option value="3">3x</option>
-                                <option value="4">4x</option>
-                                <option value="5">5x</option>
-                                <option value="6">6x</option>
-                                <option value="8">8x</option>
-                                <option value="10">10x</option>
-                                <option value="12">12x</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label>Valor da entrada (opcional)</label>
-                            <input type="number" step="0.01" id="parcelasEntrada" placeholder="0,00" inputmode="decimal" />
-                        </div>
-                    </div>
-                    <div class="parcelas-preview" id="parcelasPreview">
-                        <span style="color:var(--slate-500);">À vista (sem parcelamento)</span>
-                    </div>
-                    <input type="hidden" id="carrinhoTotalHidden" value="0" />
-                </div>
-
-                <!-- DESCONTOS -->
-                <div class="form-card">
-                    <div class="form-title">🏷️ Descontos</div>
-                    <div class="row2">
-                        <div class="field">
-                            <label>Desconto em %</label>
-                            <input type="number" step="0.01" id="descontoPercentual" placeholder="Ex: 10" min="0" max="100" inputmode="decimal" />
-                        </div>
-                        <div class="field">
-                            <label>Desconto em R$</label>
-                            <input type="number" step="0.01" id="descontoValor" placeholder="Ex: 5,00" min="0" inputmode="decimal" />
-                        </div>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--slate-200);">
-                        <span style="font-weight:600;font-size:13px;color:var(--slate-600);">Subtotal:</span>
-                        <span style="font-weight:700;font-size:15px;color:var(--slate-800);" id="subtotalDisplay">R$ 0,00</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:4px;">
-                        <span style="font-weight:600;font-size:13px;color:var(--vermelho);">Desconto aplicado:</span>
-                        <span style="font-weight:700;font-size:15px;color:var(--vermelho);" id="descontoDisplay">R$ 0,00</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:4px;border-top:2px solid var(--verde);">
-                        <span style="font-weight:700;font-size:16px;color:var(--slate-800);">Total com desconto:</span>
-                        <span style="font-weight:800;font-size:20px;color:var(--verde-escuro);" id="totalComDesconto">R$ 0,00</span>
-                    </div>
-                    <button class="btn-clean btn-sm" onclick="limparDescontos()" style="margin-top:8px;width:100%;">
-                        <i class="fas fa-undo"></i> Limpar descontos
+                <div class="venda-header">
+                    <div class="page-header"><span class="bar"></span> Nova Venda</div>
+                    <button class="desktop-cart-btn" onclick="toggleCart()">
+                        <span class="cart-icon">🛒</span>
+                        Carrinho
+                        <span class="cart-count-badge" id="cartCountDesktop">0</span>
+                        <span class="cart-total-display" id="cartTotalDesktop">R$ 0,00</span>
                     </button>
                 </div>
 
@@ -3205,23 +3395,6 @@
                     <div class="form-title">🛍️ Produtos</div>
                     <div class="category-tabs" id="categoryTabs"></div>
                     <div class="product-grid" id="productGrid"></div>
-                </div>
-
-                <!-- CARRINHO ABAIXO DOS PRODUTOS -->
-                <div class="form-card" id="carrinhoCard" style="display: none;">
-                    <div class="form-title">🛒 Carrinho</div>
-                    <div id="carrinhoItens"></div>
-                    <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--slate-200);flex-wrap:wrap;gap:8px;">
-                        <div>
-                            <div style="font-size:10px;color:var(--slate-500);font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">Total</div>
-                            <div style="font-size:20px;font-weight:800;color:var(--verde);" id="carrinhoTotal">R$ 0,00</div>
-                        </div>
-                        <div class="form-actions" style="margin-top:0;">
-                            <button class="btn-primary" onclick="registrarVenda()">
-                                💾 Registrar
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -3291,6 +3464,10 @@
                             <label>Valor (R$)</label>
                             <input type="number" step="0.01" id="produtoPrecoInput" placeholder="0,00" inputmode="decimal" />
                         </div>
+                        <div class="field field-small">
+                            <label>Estoque</label>
+                            <input type="number" step="1" id="produtoEstoqueInput" placeholder="0" min="0" inputmode="numeric" />
+                        </div>
                         <div class="field field-image">
                             <label>URL da Imagem</label>
                             <select id="produtoImagemSelect"></select>
@@ -3348,11 +3525,76 @@
         </div>
 
         <div class="cart-footer" id="cartFooter" style="display:none;">
+            <!-- Cliente -->
+            <div class="field" style="margin-bottom:10px;">
+                <label style="font-weight:700;font-size:13px;">👤 Nome do Cliente</label>
+                <input type="text" id="clienteNomeCarrinho" placeholder="Digite o nome do cliente" autocomplete="off" style="width:100%;padding:8px 12px;border:1.5px solid var(--slate-200);border-radius:10px;font-size:14px;" />
+            </div>
+
+            <!-- Descontos -->
+            <div style="background:var(--slate-50);padding:10px;border-radius:10px;margin-bottom:10px;">
+                <div style="font-weight:600;font-size:12px;color:var(--slate-600);margin-bottom:6px;">🏷️ Descontos</div>
+                <div style="display:flex;gap:6px;">
+                    <div style="flex:1;">
+                        <label style="font-size:10px;color:var(--slate-500);">%</label>
+                        <input type="number" step="0.01" id="descontoPercentualCarrinho" placeholder="%" min="0" max="100" style="width:100%;padding:6px 8px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:13px;" />
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:10px;color:var(--slate-500);">R$</label>
+                        <input type="number" step="0.01" id="descontoValorCarrinho" placeholder="R$" min="0" style="width:100%;padding:6px 8px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:13px;" />
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:4px;border-top:1px solid var(--slate-200);">
+                    <span style="font-size:11px;color:var(--slate-500);">Subtotal:</span>
+                    <span style="font-weight:600;font-size:12px;" id="subtotalDisplayCarrinho">R$ 0,00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+                    <span style="font-size:11px;color:var(--vermelho);">Desconto:</span>
+                    <span style="font-weight:600;font-size:12px;color:var(--vermelho);" id="descontoDisplayCarrinho">R$ 0,00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;padding-top:2px;border-top:2px solid var(--verde);">
+                    <span style="font-weight:700;font-size:14px;">Total:</span>
+                    <span style="font-weight:800;font-size:16px;color:var(--verde-escuro);" id="totalComDescontoCarrinho">R$ 0,00</span>
+                </div>
+                <button class="btn-clean btn-sm" onclick="limparDescontos()" style="width:100%;margin-top:4px;font-size:10px;">
+                    <i class="fas fa-undo"></i> Limpar descontos
+                </button>
+            </div>
+
+            <!-- Parcelas -->
+            <div style="background:var(--slate-50);padding:10px;border-radius:10px;margin-bottom:10px;">
+                <div style="font-weight:600;font-size:12px;color:var(--slate-600);margin-bottom:6px;">📆 Parcelamento</div>
+                <div style="display:flex;gap:6px;">
+                    <div style="flex:1;">
+                        <label style="font-size:10px;color:var(--slate-500);">Parcelas</label>
+                        <select id="parcelasQtdCarrinho" style="width:100%;padding:6px 8px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:13px;">
+                            <option value="1">1x (à vista)</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="4">4x</option>
+                            <option value="5">5x</option>
+                            <option value="6">6x</option>
+                            <option value="8">8x</option>
+                            <option value="10">10x</option>
+                            <option value="12">12x</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:10px;color:var(--slate-500);">Entrada (R$)</label>
+                        <input type="number" step="0.01" id="parcelasEntradaCarrinho" placeholder="0,00" style="width:100%;padding:6px 8px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:13px;" />
+                    </div>
+                </div>
+                <div class="parcelas-preview" id="parcelasPreviewCarrinho" style="margin-top:6px;padding:6px 8px;max-height:80px;">
+                    <span style="color:var(--slate-500);font-size:11px;">À vista (sem parcelamento)</span>
+                </div>
+                <input type="hidden" id="carrinhoTotalHidden" value="0" />
+            </div>
+
             <div class="cart-total-row">
                 <span>Total</span>
                 <span class="value" id="cartFooterTotal">R$ 0,00</span>
             </div>
-            <button class="btn-finalizar" onclick="registrarVenda()">
+            <button class="btn-finalizar" onclick="registrarVenda()" id="btnFinalizarVenda">
                 <i class="fas fa-check"></i> Finalizar Venda
             </button>
             <button class="btn-continuar" onclick="fecharCarrinho()">
@@ -3387,4 +3629,4 @@
     </div>
 
 </body>
-    </html>
+</html>
