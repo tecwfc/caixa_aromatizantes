@@ -1986,6 +1986,54 @@
         let produtoEditandoId = null;
         let categoriaAtual = 'todos';
         let listaProdutosParaSelect = [];
+        let filtroDisponibilidade = 'todos';
+
+        // ============================================================
+        // FORMATAÇÃO DE DATA E HORA
+        // ============================================================
+        function formatarDataHora(dataString) {
+            if (!dataString) return '';
+
+            // Se for uma string no formato ISO (YYYY-MM-DD) ou ISO completo
+            if (typeof dataString === 'string') {
+                // Tenta extrair a data do formato ISO
+                if (dataString.includes('T')) {
+                    // Formato ISO completo: 2026-09-10T14:30:00.000Z
+                    const dataObj = new Date(dataString);
+                    if (!isNaN(dataObj.getTime())) {
+                        const dia = String(dataObj.getDate()).padStart(2, '0');
+                        const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                        const ano = dataObj.getFullYear();
+                        const hora = String(dataObj.getHours()).padStart(2, '0');
+                        const minuto = String(dataObj.getMinutes()).padStart(2, '0');
+                        return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+                    }
+                } else if (dataString.includes('-')) {
+                    // Formato YYYY-MM-DD
+                    const partes = dataString.split('-');
+                    if (partes.length === 3) {
+                        const [ano, mes, dia] = partes;
+                        const agora = new Date();
+                        const hora = String(agora.getHours()).padStart(2, '0');
+                        const minuto = String(agora.getMinutes()).padStart(2, '0');
+                        return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+                    }
+                }
+                return dataString;
+            }
+
+            // Se for um objeto Date
+            if (dataString instanceof Date) {
+                const dia = String(dataString.getDate()).padStart(2, '0');
+                const mes = String(dataString.getMonth() + 1).padStart(2, '0');
+                const ano = dataString.getFullYear();
+                const hora = String(dataString.getHours()).padStart(2, '0');
+                const minuto = String(dataString.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+            }
+
+            return dataString;
+        }
 
         // ============================================================
         // FUNÇÕES DE API
@@ -2073,7 +2121,7 @@
                         return {
                             id: parseInt(v.ID || v.id || Date.now()),
                             clienteNome: v.ClienteNome || v.clienteNome || 'Cliente',
-                            data: v.Data || v.data || new Date().toISOString().split('T')[0],
+                            data: v.Data || v.data || new Date().toISOString(),
                             itens: itens,
                             total: parseFloat(v.Total || v.total || 0),
                             totalBruto: parseFloat(v.TotalBruto || v.totalBruto || v.Total || v.total || 0),
@@ -2122,9 +2170,6 @@
         // ============================================================
         // CATEGORIAS
         // ============================================================
-        // ============================================================
-        // CATEGORIAS (ATUALIZADO COM CONTAGENS)
-        // ============================================================
         function renderizarCategorias() {
             const container = document.getElementById('categoryTabs');
             if (!container) return;
@@ -2132,7 +2177,6 @@
             const categorias = ['todos', '500ml', '120ml', '1 Litro'];
             const contagens = {};
 
-            // Aplica o filtro de disponibilidade nas contagens
             let produtosBase = [...produtos];
             if (filtroDisponibilidade === 'disponiveis') {
                 produtosBase = produtosBase.filter(p => p.estoque > 0);
@@ -2155,7 +2199,6 @@
         </button>
     `).join('');
 
-            // Atualiza contagens dos botões de disponibilidade
             const total = produtos.length;
             const disponiveis = produtos.filter(p => p.estoque > 0).length;
             const indisponiveis = produtos.filter(p => p.estoque <= 0).length;
@@ -2296,7 +2339,6 @@
             const produto = produtos.find(p => String(p.id) === String(produtoId));
             if (!produto) return;
 
-            // VERIFICA ESTOQUE ANTES DE ADICIONAR
             if (produto.estoque !== undefined && produto.estoque <= 0) {
                 alert('❌ Produto sem estoque!');
                 return;
@@ -2305,7 +2347,6 @@
             const itemExistente = carrinho.find(item => String(item.produtoId) === String(produtoId));
             const quantidadeAtual = itemExistente ? itemExistente.quantidade : 0;
 
-            // VERIFICA SE TEM ESTOQUE SUFICIENTE
             if (produto.estoque !== undefined && quantidadeAtual >= produto.estoque) {
                 alert('❌ Estoque insuficiente!');
                 return;
@@ -2324,7 +2365,6 @@
                 });
             }
 
-            // DIMINUI O ESTOQUE
             if (produto.estoque !== undefined) produto.estoque--;
 
             renderizarProdutos();
@@ -2441,7 +2481,7 @@
             for (let i = 1; i <= parcelas; i++) {
                 const dataParcela = new Date();
                 dataParcela.setMonth(dataParcela.getMonth() + i);
-                const dataStr = dataParcela.toLocaleDateString('pt-BR');
+                const dataStr = formatarDataHora(dataParcela);
                 html += `<div class="parcela-item"><span>${i}ª parcela (${dataStr}) <span class="parcela-status">⏳ A RECEBER</span></span><span>R$ ${valorParcela.toFixed(2)}</span></div>`;
             }
             preview.innerHTML = html;
@@ -2515,15 +2555,12 @@
         }
 
         // ============================================================
-        // NOVO: FILTRO DE DISPONIBILIDADE
+        // FILTRO DE DISPONIBILIDADE
         // ============================================================
-        let filtroDisponibilidade = 'todos'; // 'todos', 'disponiveis', 'indisponiveis'
-
         function filtrarPorDisponibilidade(tipo) {
             filtroDisponibilidade = tipo;
             renderizarProdutos();
             renderizarCategorias();
-            // Atualiza os botões de filtro visualmente
             document.querySelectorAll('.filter-stock-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.tipo === tipo) {
@@ -2533,7 +2570,7 @@
         }
 
         // ============================================================
-        // RENDERIZAR PRODUTOS (ATUALIZADO COM FILTRO)
+        // RENDERIZAR PRODUTOS
         // ============================================================
         function renderizarProdutos() {
             const grid = document.getElementById('productGrid');
@@ -2541,12 +2578,10 @@
 
             let produtosFiltrados = [...produtos];
 
-            // Filtro por categoria
             if (categoriaAtual !== 'todos') {
                 produtosFiltrados = produtosFiltrados.filter(p => p.categoria === categoriaAtual);
             }
 
-            // Filtro por disponibilidade
             if (filtroDisponibilidade === 'disponiveis') {
                 produtosFiltrados = produtosFiltrados.filter(p => p.estoque > 0);
             } else if (filtroDisponibilidade === 'indisponiveis') {
@@ -2574,6 +2609,7 @@
         `;
             }).join('');
         }
+
         function renderizarProdutosCadastrados() {
             const grid = document.getElementById('produtosCadastrados');
             if (!grid) return;
@@ -2830,7 +2866,8 @@
         function cardVenda(venda) {
             const id = venda.ID || venda.id || 0;
             const clienteNome = venda.ClienteNome || venda.clienteNome || 'Cliente';
-            const data = venda.Data || venda.data || new Date().toISOString().split('T')[0];
+            const dataOriginal = venda.Data || venda.data || new Date().toISOString();
+            const data = formatarDataHora(dataOriginal);
             const total = parseFloat(venda.Total || venda.total || 0);
             const totalBruto = parseFloat(venda.TotalBruto || venda.totalBruto || total);
             let itens = venda.Itens_JSON || venda.itens || [];
@@ -2857,7 +2894,7 @@
                 const lista = parcelas.lista || [];
                 parcelasHtml = `<div style="margin-top:4px;font-size:10px;color:var(--slate-500);"><strong>📆 Parcelas:</strong> ${lista.map(p => `${p.numero}ª: R$ ${(p.valor || 0).toFixed(2)} ${p.pago ? '✅' : '⏳'}`).join(' | ')} ${saldo > 0.01 ? `<button class="parcela-btn" onclick="abrirModalPagamento(${id})">💰 Receber</button>` : ''}</div>`;
             }
-            const pagamentosHtml = pagamentos.length > 0 ? `<div style="margin-top:4px;font-size:10px;color:var(--slate-500);"><strong>Pagamentos:</strong> ${pagamentos.map(p => `${p.data}: R$ ${(p.valor || 0).toFixed(2)}` + (p.tipo === 'entrada' ? ' (entrada)' : '')).join(' | ')}</div>` : '';
+            const pagamentosHtml = pagamentos.length > 0 ? `<div style="margin-top:4px;font-size:10px;color:var(--slate-500);"><strong>Pagamentos:</strong> ${pagamentos.map(p => `${formatarDataHora(p.data)}: R$ ${(p.valor || 0).toFixed(2)}` + (p.tipo === 'entrada' ? ' (entrada)' : '')).join(' | ')}</div>` : '';
             return `
             <div class="sale-card ${statusClass}">
                 <div class="sale-header"><div><div class="sale-customer">${clienteNome}</div><div style="font-size:10px;color:var(--slate-500);font-weight:500;">${data}</div></div><span class="sale-status ${statusClass}">${statusTexto}</span></div>
@@ -2908,7 +2945,7 @@
             if (venda.parcelas && venda.parcelas.lista) {
                 proximaParcela = venda.parcelas.lista.find(p => !p.pago);
                 if (proximaParcela) {
-                    parcelaInfo = `<div style="background:var(--verde-bg);padding:8px 12px;border-radius:8px;margin:8px 0;"><strong>Próxima parcela:</strong> ${proximaParcela.numero}ª - R$ ${proximaParcela.valor.toFixed(2)}<br><small style="color:var(--slate-500);">Data: ${new Date(proximaParcela.data).toLocaleDateString('pt-BR')}</small></div>`;
+                    parcelaInfo = `<div style="background:var(--verde-bg);padding:8px 12px;border-radius:8px;margin:8px 0;"><strong>Próxima parcela:</strong> ${proximaParcela.numero}ª - R$ ${proximaParcela.valor.toFixed(2)}<br><small style="color:var(--slate-500);">Data: ${formatarDataHora(proximaParcela.data)}</small></div>`;
                 }
             }
             document.getElementById('pagamentoInfo').innerHTML = `
@@ -3010,7 +3047,7 @@
             doc.setFont('helvetica', 'bold');
             doc.text('WFC Vendas - Recibo', 105, 10, { align: 'center' });
             doc.setFontSize(9);
-            doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 105, 18, { align: 'center' });
+            doc.text(`Data: ${formatarDataHora(new Date())}`, 105, 18, { align: 'center' });
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(11);
             doc.text(`Cliente: ${venda.clienteNome}`, 14, 35);
@@ -3047,7 +3084,7 @@
                 y += 6;
                 const lista = venda.parcelas.lista || [];
                 lista.forEach((p, index) => {
-                    doc.text(`${p.numero}ª: R$ ${p.valor.toFixed(2)} - ${p.pago ? '✅ Paga' : '⏳ Pendente'}`, 14, y + (index * 5));
+                    doc.text(`${p.numero}ª: R$ ${p.valor.toFixed(2)} - ${formatarDataHora(p.data)} - ${p.pago ? '✅ Paga' : '⏳ Pendente'}`, 14, y + (index * 5));
                 });
             }
             doc.setFontSize(8);
@@ -3095,7 +3132,7 @@
             const venda = {
                 id: Date.now(),
                 clienteNome: clienteNome,
-                data: new Date().toISOString().split('T')[0],
+                data: formatarDataHora(new Date()),
                 itens: carrinho.map(item => ({ nome: item.nome, preco: item.preco || 0, quantidade: item.quantidade })),
                 total: total,
                 totalBruto: totalBruto,
@@ -3180,7 +3217,7 @@
                         parcelasTexto = `${v.parcelas.quantidade}x R$ ${v.parcelas.valorParcela.toFixed(2)} (${pagas}/${v.parcelas.quantidade})`;
                         if (v.parcelas.entrada > 0) parcelasTexto += ` + R$ ${v.parcelas.entrada.toFixed(2)}`;
                     }
-                    return [v.data, v.clienteNome, produtosTexto, `R$ ${v.total.toFixed(2)}`, descontoTexto, `R$ ${totalPago.toFixed(2)}`, `R$ ${saldo.toFixed(2)}`, statusTexto, parcelasTexto];
+                    return [formatarDataHora(v.data), v.clienteNome, produtosTexto, `R$ ${v.total.toFixed(2)}`, descontoTexto, `R$ ${totalPago.toFixed(2)}`, `R$ ${saldo.toFixed(2)}`, statusTexto, parcelasTexto];
                 }),
                 headStyles: { fillColor: [39, 174, 96] },
                 alternateRowStyles: { fillColor: [240, 240, 240] },
@@ -3365,7 +3402,7 @@
                 <div class="form-card">
                     <div class="form-title">🛍️ Produtos</div>
 
-                    <!-- NOVO: FILTRO DE DISPONIBILIDADE -->
+                    <!-- FILTRO DE DISPONIBILIDADE -->
                     <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
                         <button class="category-tab filter-stock-btn active" data-tipo="todos"
                             onclick="filtrarPorDisponibilidade('todos')">
